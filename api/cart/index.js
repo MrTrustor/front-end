@@ -1,12 +1,14 @@
 (function (){
   'use strict';
 
-  var async     = require("async")
-    , express   = require("express")
-    , request   = require("request")
-    , helpers   = require("../../helpers")
-    , endpoints = require("../endpoints")
-    , app       = express()
+  var async          = require("async")
+    , express        = require("express")
+    , request        = require("request")
+    , helpers        = require("../../helpers")
+    , endpoints      = require("../endpoints")
+    , ErrorReporting = require('@google-cloud/error-reporting').ErrorReporting
+    , errors         = new ErrorReporting()
+    , app            = express()
 
   // List items in cart for current logged in user.
   app.get("/cart", function (req, res, next) {
@@ -151,7 +153,7 @@
     console.log("Attempting to update cart item: " + JSON.stringify(req.body));
 
     var custId = helpers.getCustomerId(req, app.get("env"));
-    
+
     if (req.body.id == null) {
       next(new Error("Must pass id of item to update"), 400);
       return;
@@ -164,8 +166,7 @@
     if (req.body.quantity < 1)
     {
         console.error((new Error('Tried to set quantity < 0')).stack);
-        next(new Error("Quantity cannot be < 1"), 400);
-        return;
+        errors.report('Quantity cannot be < 1');
     }
 
 
@@ -202,6 +203,6 @@
       helpers.respondStatus(res, statusCode);
     });
   });
-  
+
   module.exports = app;
 }());

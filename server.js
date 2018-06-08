@@ -52,7 +52,7 @@ app.use(catalogue);
 app.use(orders);
 app.use(user);
 
-//app.use(helpers.errorHandler);
+app.use(helpers.errorHandler);
 app.use(errors.express);
 
 var server = app.listen(process.env.PORT || 8079, function () {
